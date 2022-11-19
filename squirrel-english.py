@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Little Squirrel personnal english trainer.
 
 Hedgehog editions, 2022.
