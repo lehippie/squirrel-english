@@ -3,12 +3,12 @@
 Hedgehog editions, 2022.
 """
 
+import traceback
 from pathlib import Path
 from random import randint, shuffle
 
 
 DATABASE = Path(__file__).parent / "english vocabulary.txt"
-
 
 def read_database(filepath=DATABASE):
     db = []
@@ -23,8 +23,8 @@ def read_database(filepath=DATABASE):
             if "(" in line:
                 line = line[:line.index("(")]
             db.append([])
-            for entry in line.split(";"):
-                words = tuple(map(str.strip, entry.split(",")))
+            for lang in line.split(";"):
+                words = [word.strip() for word in lang.split(",")]
                 db[-1].append(words)
     return db
 
@@ -54,7 +54,13 @@ def main(db):
 if __name__ == "__main__":
     print("Welcome to Squirrel-English v2 !\n")
     print("Reading database...")
-    db = read_database()
-    print()
-    main(db)
+    try:
+        db = read_database()
+        print()
+        main(db)
+    except:
+        print()
+        traceback.print_exc()
+        input("Press Enter to quit.")
+        exit()
     input("No more words! Press Enter to exit.")
