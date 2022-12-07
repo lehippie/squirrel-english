@@ -3,29 +3,35 @@
 Hedgehog editions, 2022.
 """
 
+import re
 import traceback
 from pathlib import Path
 from random import randint, shuffle
 
 
-DATABASE = Path(__file__).parent / "english vocabulary.txt"
+DATABASE = next(Path(__file__).parent.glob("*.txt"))
+PATTERN = re.compile(r"")
 
-def read_database(filepath=DATABASE):
+
+def read_database(dbpath=DATABASE):
     db = []
-    with open(filepath, encoding="utf-8") as f:
+    print(f"Reading database '{dbpath.stem}'...")
+    with open(dbpath, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             if line.count(";") != 1:
-                print(f'[W] Line "{line}" ignored: there should be only one ";"')
+                print(f"[W] Line '{line}' incorrectly formatted.")
                 continue
-            if "(" in line:
-                line = line[:line.index("(")]
             db.append([])
             for lang in line.split(";"):
+                ctx = ""
+                if "(" in lang:
+                    ctx = lang[lang.index("(") + 1 : lang.index(")")]
+                    lang = lang[: lang.index("(")]
                 words = [word.strip() for word in lang.split(",")]
-                db[-1].append(words)
+                db[-1].append([words, ctx])
     return db
 
 
@@ -36,9 +42,12 @@ def main(db):
         k += 1
         entry = db.pop()
         shuffle(entry)
-        questions, answers = entry
+        (questions, qctx), (answers, _) = entry
         shuffle(questions)
-        answer = input(f"{k}) {questions[0]} ? ")
+        if qctx:
+            answer = input(f"{k}) {questions[0]} ({qctx})? ")
+        else:
+            answer = input(f"{k}) {questions[0]} ? ")
         if answer.lower() in [a.lower() for a in answers]:
             print("-> Congratulations Little Squirrel \o/")
             if len(answers) > 1:
@@ -52,8 +61,7 @@ def main(db):
 
 
 if __name__ == "__main__":
-    print("Welcome to Squirrel-English v2 !\n")
-    print("Reading database...")
+    print("--- Welcome to Squirrel-English v2 ! ---\n")
     try:
         db = read_database()
         print()
